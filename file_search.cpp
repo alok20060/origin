@@ -7,14 +7,10 @@ unordered_map<string,int> freq;
 queue<string> history;                  
 stack<string> undoStack;              
 
-// Function prototypes
 void extractWordsFromFile(const string &filename,vector<string> &all_words,unordered_map<string,int> &freq);
-
 vector<string> searchKeyword(const string &keyword,const vector<string> &files);
-
 vector<string> autoSuggest(const string &prefix,const vector<string> &all_words,const unordered_map<string,int> &freq);
 
-// extract words from a single file
 void extractWordsFromFile(const string &filename,vector<string> &all_words,unordered_map<string,int> &freq)
 {
     ifstream fin(filename);
@@ -26,7 +22,6 @@ void extractWordsFromFile(const string &filename,vector<string> &all_words,unord
     string line;
     while (getline(fin, line)) {
         
-        // clean the line
         string clean = "";
         for (char c : line) {
             if (isalpha(c))
@@ -35,7 +30,6 @@ void extractWordsFromFile(const string &filename,vector<string> &all_words,unord
                 clean += ' ';
         }
 
-        // split the cleaned line into words
         string word = "";
         for (char c : clean) {
             if (c != ' ')
@@ -49,7 +43,6 @@ void extractWordsFromFile(const string &filename,vector<string> &all_words,unord
             }
         }
 
-        // last word (if not followed by space)
         if (!word.empty()) {
             all_words.push_back(word);
             freq[word]++;
@@ -59,13 +52,11 @@ void extractWordsFromFile(const string &filename,vector<string> &all_words,unord
     fin.close();
 }
 
-// search keyword in all loaded files
 vector<string> searchKeyword(const string &keyword,const vector<string> &files)
 {
     vector<string> results;
     string key = keyword;
 
-    // convert keyword to lowercase
     for (char &c : key)
         c = tolower(c);
 
@@ -78,7 +69,6 @@ vector<string> searchKeyword(const string &keyword,const vector<string> &files)
         for (char &c : content)
             c = tolower(c);
 
-        // check if keyword exists in content
         if (content.find(key) != string::npos)
             results.push_back(fname);
 
@@ -88,17 +78,14 @@ vector<string> searchKeyword(const string &keyword,const vector<string> &files)
     return results;
 }
 
-// Chunk 4: auto-suggest based on prefix
 vector<string> autoSuggest(const string &prefix,const vector<string> &all_words,const unordered_map<string,int> &freq)
 {
     vector<string> suggestions;
     string pre = prefix;
 
-    // convert prefix to lowercase
     for (char &c : pre)
         c = tolower(c);
 
-    // find words that start with the prefix
     for (const string &word : all_words) {
         if (word.size() >= pre.size() &&word.substr(0, pre.size()) == pre)
         {
@@ -106,23 +93,19 @@ vector<string> autoSuggest(const string &prefix,const vector<string> &all_words,
         }
     }
 
-    // sort by frequency (highest first)
     sort(suggestions.begin(), suggestions.end(),[&](const string &a, const string &b) {
              return freq.at(a) > freq.at(b);
          });
 
-    // remove duplicates
     sort(suggestions.begin(), suggestions.end());
     suggestions.erase(unique(suggestions.begin(),suggestions.end()),suggestions.end());
 
-    // show only top 5
     if (suggestions.size() > 5)
         suggestions.resize(5);
 
     return suggestions;
 }
 
-// main menu loop
 int main() {
     int choice;
 
@@ -139,7 +122,6 @@ int main() {
         cout<< "Enter your choice: ";
         cin >> choice;
 
-        // handle invalid input for non-numeric values
         if (cin.fail()) {
             cin.clear();
             cin.ignore(1000, '\n');
@@ -154,7 +136,7 @@ int main() {
             cout << "How many files do you want to load? ";
             cin >> n;
 
-            files.clear();       // reset previous data
+            files.clear();       
             all_words.clear();
             freq.clear();
 
@@ -178,7 +160,7 @@ int main() {
 
             vector<string> results = searchKeyword(keyword, files);
 
-            // show results
+        
             if (results.empty()) {
                 cout<< "Keyword not found in any file.\n";
             } else {
@@ -187,7 +169,7 @@ int main() {
                     cout<< "- " << f << endl;
             }
 
-            // update history + undo
+            
             history.push(keyword);
             undoStack.push(keyword);
 
